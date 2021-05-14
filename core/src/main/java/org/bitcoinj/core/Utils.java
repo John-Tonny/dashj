@@ -104,6 +104,11 @@ public class Utils {
         out[offset + 7] = (byte) (0xFF & (val >> 56));
     }
 
+    public static void uint16ToByteStreamBE(int val, OutputStream stream) throws IOException {
+        stream.write((int) (0xFF & (val >> 8)));
+        stream.write((int) (0xFF & val));
+    }
+
     public static void uint16ToByteStreamLE(int val, OutputStream stream) throws IOException {
         stream.write((int) (0xFF & val));
         stream.write((int) (0xFF & (val >> 8)));
@@ -806,5 +811,15 @@ public class Utils {
             host = in;
         }
         return new org.bitcoinj.utils.Pair<Integer, String>(port, host);
+    }
+
+    // john
+    public static boolean isHexString(String strHex) {
+	String regex = "^[A-Fa-f0-9]+$";
+
+        if(strHex.matches(regex)){
+	  return true;
+	}
+	return false;
     }
 }

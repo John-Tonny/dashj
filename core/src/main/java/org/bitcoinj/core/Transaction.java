@@ -1148,10 +1148,29 @@ public class Transaction extends ChildMessage {
         for (TransactionOutput out : outputs)
             out.bitcoinSerialize(stream);
         uint32ToByteStreamLE(lockTime, stream);
-        if(getVersionShort() >= 3 && getType() != Type.TRANSACTION_NORMAL) {
+        // john
+        /*if(getVersionShort() >= 3 && getType() != Type.TRANSACTION_NORMAL) {
             stream.write(new VarInt(extraPayload.length).encode());
             stream.write(extraPayload);
-        }
+        }*/
+    }
+
+    @Override
+    protected void bitcoinSerializeToStream1(OutputStream stream) throws IOException {
+        uint32ToByteStreamLE(version, stream);
+        stream.write(new VarInt(inputs.size()).encode());
+        for (TransactionInput in : inputs)
+            in.bitcoinSerialize(stream);
+        stream.write(new VarInt(outputs.size()).encode());
+        for (TransactionOutput out : outputs)
+            out.bitcoinSerialize(stream);
+        uint32ToByteStreamLE(lockTime, stream);
+        // john
+        uint32ToByteStreamLE(1, stream);
+        /*if(getVersionShort() >= 3 && getType() != Type.TRANSACTION_NORMAL) {
+            stream.write(new VarInt(extraPayload.length).encode());
+            stream.write(extraPayload);
+        }*/
     }
 
 

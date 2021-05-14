@@ -248,6 +248,69 @@ public abstract class Message {
     }
 
     /**
+     * Serialize this message to a byte array that conforms to the bitcoin wire protocol.
+     * <br/>
+     * This method may return the original byte array used to construct this message if the
+     * following conditions are met:
+     * <ol>
+     * <li>1) The message was parsed from a byte array with parseRetain = true</li>
+     * <li>2) The message has not been modified</li>
+     * <li>3) The array had an offset of 0 and no surplus bytes</li>
+     * </ol>
+     *
+     * If condition 3 is not met then an copy of the relevant portion of the array will be returned.
+     * Otherwise a full serialize will occur. For this reason you should only use this API if you can guarantee you
+     * will treat the resulting array as read only.
+     *
+     * @return a byte array owned by this object, do NOT mutate it.
+     */
+    public byte[] unsafeBitcoinSerialize1() {
+        // 1st attempt to use a cached array.
+        if (payload != null) {
+            if (offset == 0 && length == payload.length) {
+                // Cached byte array is the entire message with no extras so we can return as is and avoid an array
+                // copy.
+                return payload;
+            }
+
+            byte[] buf = new byte[length];
+            System.arraycopy(payload, offset, buf, 0, length);
+            return buf;
+        }
+
+        // No cached array available so serialize parts by stream.
+        ByteArrayOutputStream stream = new UnsafeByteArrayOutputStream(length < 32 ? 32 : length + 32);
+        try {
+            bitcoinSerializeToStream1(stream);
+        } catch (IOException e) {
+            // Cannot happen, we are serializing to a memory stream.
+        }
+
+        if (serializer.isParseRetainMode()) {
+            // A free set of steak knives!
+            // If there happens to be a call to this method we gain an opportunity to recache
+            // the byte array and in this case it contains no bytes from parent messages.
+            // This give a dual benefit.  Releasing references to the larger byte array so that it
+            // it is more likely to be GC'd.  And preventing double serializations.  E.g. calculating
+            // merkle root calls this method.  It is will frequently happen prior to serializing the block
+            // which means another call to bitcoinSerialize is coming.  If we didn't recache then internal
+            // serialization would occur a 2nd time and every subsequent time the message is serialized.
+            payload = stream.toByteArray();
+            cursor = cursor - offset;
+            offset = 0;
+            recached = true;
+            length = payload.length;
+            return payload;
+        }
+        // Record length. If this Message wasn't parsed from a byte stream it won't have length field
+        // set (except for static length message types).  Setting it makes future streaming more efficient
+        // because we can preallocate the ByteArrayOutputStream buffer and avoid resizing.
+        byte[] buf = stream.toByteArray();
+        length = buf.length;
+        return buf;
+    }
+
+    /**
      * Serialize this message to the provided OutputStream using the bitcoin wire format.
      *
      * @param stream
@@ -267,6 +330,10 @@ public abstract class Message {
      * Serializes this message to the provided stream. If you just want the raw bytes use bitcoinSerialize().
      */
     protected void bitcoinSerializeToStream(OutputStream stream) throws IOException {
+        log.error("Error: {} class has not implemented bitcoinSerializeToStream method.  Generating message with no payload", getClass());
+    }
+
+    protected void bitcoinSerializeToStream1(OutputStream stream) throws IOException {
         log.error("Error: {} class has not implemented bitcoinSerializeToStream method.  Generating message with no payload", getClass());
     }
 

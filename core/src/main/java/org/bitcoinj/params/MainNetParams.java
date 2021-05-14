@@ -43,7 +43,7 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = CoinDefinition.proofOfWorkLimit;
-        dumpedPrivateKeyHeader = 204;
+        dumpedPrivateKeyHeader = 128;       // john
         addressHeader = CoinDefinition.AddressHeader;
         p2shHeader = CoinDefinition.p2shHeader;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader};
@@ -63,8 +63,8 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         subsidyDecreaseBlockCount = CoinDefinition.subsidyDecreaseBlockCount;
         spendableCoinbaseDepth = CoinDefinition.spendableCoinbaseDepth;
         String genesisHash = genesisBlock.getHashAsString();
-        checkState(genesisHash.equals(CoinDefinition.genesisHash),
-                genesisHash);
+        // jouh
+        // checkState(genesisHash.equals(CoinDefinition.genesisHash), genesisHash);
 
         //CoinDefinition.initCheckpoints(checkpoints);
 
