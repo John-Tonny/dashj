@@ -326,6 +326,23 @@ public abstract class Message {
         bitcoinSerializeToStream(stream);
     }
 
+    // john
+    /**
+     * Serialize this message to the provided OutputStream using the bitcoin wire format.
+     *
+     * @param stream
+     * @throws IOException
+     */
+    public final void bitcoinSerialize1(OutputStream stream) throws IOException {
+        // 1st check for cached bytes.
+        if (payload != null && length != UNKNOWN_LENGTH) {
+            stream.write(payload, offset, length);
+            return;
+        }
+
+        bitcoinSerializeToStream1(stream);
+    }
+
     /**
      * Serializes this message to the provided stream. If you just want the raw bytes use bitcoinSerialize().
      */
@@ -333,6 +350,7 @@ public abstract class Message {
         log.error("Error: {} class has not implemented bitcoinSerializeToStream method.  Generating message with no payload", getClass());
     }
 
+    // john
     protected void bitcoinSerializeToStream1(OutputStream stream) throws IOException {
         log.error("Error: {} class has not implemented bitcoinSerializeToStream method.  Generating message with no payload", getClass());
     }

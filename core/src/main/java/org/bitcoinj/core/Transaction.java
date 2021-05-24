@@ -244,6 +244,18 @@ public class Transaction extends ChildMessage {
     @Nullable
     private String memo;
 
+    // john
+    @Nullable
+    private TransactionAtomicswap atomicswap;
+
+    public void addAtomicswap(String secretHash, Boolean initiate, String contract, String secret, Boolean redeem, Boolean atomicSwap, Long lockTime) {
+        this.atomicswap = new TransactionAtomicswap(secretHash, initiate, contract, secret, redeem, atomicSwap, lockTime);
+    }
+
+    public TransactionAtomicswap getAtomicswap() {
+        return this.atomicswap;
+    }
+
     public Transaction(NetworkParameters params) {
         super(params);
         version = 1;
@@ -1155,6 +1167,7 @@ public class Transaction extends ChildMessage {
         }*/
     }
 
+    // john
     @Override
     protected void bitcoinSerializeToStream1(OutputStream stream) throws IOException {
         uint32ToByteStreamLE(version, stream);
